@@ -39,22 +39,23 @@ customers = [
 
 # * ============ ENDPOINTS (API Routes) ============
 
+
 # * [GET] Lấy danh sách tất cả khách hàng (có thể filter)
 # ? Hỗ trợ 2 query parameters: name (tìm kiếm) và min_budget (lọc theo ngân sách)
 @app.get("/customers", response_model=list[CustomerResponse])
 def get_customer(name: str | None = None, min_budget: float | None = None):
     # ! Copy danh sách để không modify dữ liệu gốc
     result = customers.copy()
-    
+
     # ? Filter theo tên nếu có (không phân biệt hoa/thường, không dấu)
     if name:
         keyword = unidecode(name.lower())
         result = [c for c in result if keyword in unidecode(c["name"].lower())]
-    
+
     # ? Filter theo ngân sách tối thiểu nếu có
     if min_budget is not None:
         result = [c for c in result if c["budget"] >= min_budget]
-    
+
     return result
 
 
@@ -66,7 +67,7 @@ def get_customer_by_id(customer_id: int):
     for c in customers:
         if c["id"] == customer_id:
             return c
-    
+
     # ! Nếu không tìm thấy → trả về lỗi 404
     raise HTTPException(status_code=404, detail="Customer not found")
 
@@ -85,10 +86,10 @@ def create_customer(customer: Customer):
         "phone": customer.phone,
         "budget": customer.budget,
     }
-    
+
     # ! Thêm khách hàng vào danh sách
     customers.append(new_customer)
-    
+
     # ! Trả về khách hàng vừa tạo
     return new_customer
 
@@ -105,7 +106,7 @@ def update_customer(customer_id: int, customer: Customer):
             # ! update(): cập nhật các field của dict
             c.update(customer.model_dump())
             return c
-    
+
     # ! Nếu không tìm thấy → trả về lỗi 404
     raise HTTPException(status_code=404, detail="Customer not found!")
 
@@ -121,6 +122,6 @@ def delete_customer(customer_id: int):
             # ! Xóa khách hàng tại vị trí i
             customers.pop(i)
             return
-    
+
     # ! Nếu không tìm thấy → trả về lỗi 404
     raise HTTPException(status_code=404, detail="Customer not found")
